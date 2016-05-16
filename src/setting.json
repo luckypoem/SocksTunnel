@@ -1,0 +1,15 @@
+{
+  "remote_server":"127.0.0.1",
+  "remote_port":9001,
+  "local_server":"0.0.0.0",
+  "local_port":9000,
+  "password":"as long as possible.....abcdegsdsdfasdf....123456789skdfj834j532hhu",
+  "method":["rc4"],
+  "user":{
+    "hehetest":"testtest",
+    "sbtest":"ceshitest",
+    "sentest":"sentest"
+  },
+  "current_user":"sentest",
+  "current_pwd":"sentest"
+}
