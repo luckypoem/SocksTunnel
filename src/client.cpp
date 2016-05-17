@@ -11,9 +11,12 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char *argv[])
 {
-    serverInit();
+    std::string file = "./setting.json";
+    if(argc > 1)
+        file = argv[1];
+    serverInit(file);
     SocksTunnelLocal tunnel;
     tunnel.start();
     return 0;

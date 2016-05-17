@@ -85,7 +85,7 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             if(!msg.decode(tmp))
             {
                 isError = true;
-                QDEBUG("Msg decode failed, Fd:%d", server->readIO->asEvIO()->fd);
+                QERROR("Msg decode failed, Fd:%d", server->readIO->asEvIO()->fd);
                 break;
             }
             QDEBUG("Msg info:%s", msg.info().c_str());
@@ -93,7 +93,13 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             if(!msg.check())
             {
                 isError = true;
-                QDEBUG("Msg check failed, Fd:%d", server->readIO->asEvIO()->fd);
+                QERROR("Msg check failed, Fd:%d", server->readIO->asEvIO()->fd);
+                break;
+            }
+            if(!SettingUtils::newInstance().checkUser(msg.user, msg.pwd))
+            {
+                isError = true;
+                QERROR("User or password error, fd:%d", server->readIO->asEvIO()->fd);
                 break;
             }
             int fd = createRemoteServer(msg.addr.c_str(), (unsigned char)msg.addrLen, msg.port, msg.addrType);
@@ -392,6 +398,9 @@ void SocksTunnelServer::acceptCallback(struct ev_loop *loop, ev_io *args, int re
         delete server;
         exit(0);
     }
+    char tmp[17] = {0};
+    inet_ntop(AF_INET, &client.sin_addr, tmp, sizeof(tmp));
+    QERROR("Client:%s connect! Fd:%d", tmp, fd);
     evutil_make_socket_nonblocking(fd);
     Server *clientArgs = new LocalServer(server->tunnel);
     ev_io_init(clientArgs->readIO->asEvIO(), readCallback, fd, EV_READ);

@@ -189,10 +189,10 @@ void closeLocalAndRemoteServer(LocalServer *local, RemoteServer *remote)
     removeRemoteServer(remote);
 }
 
-void serverInit()
+void serverInit(const String &file)
 {
     SettingUtils &setting = SettingUtils::newInstance();
-    setting.init("./setting.json");
+    setting.init(file);
     std::vector<std::string> methods;
     setting.getMethod(methods);
     for(auto &item : methods)
