@@ -3,6 +3,7 @@
 //
 
 #include "ServerCommon.h"
+#include "../Crypto/Chacha20.h"
 
 int createLocalServer(const char *address, uint16_t port)
 {
@@ -19,7 +20,20 @@ int createLocalServer(const char *address, uint16_t port)
     ret = listen(fd, 10);
     EXIT_IF(ret != 0, "Listen failed, ret:%d", ret);
     evutil_make_socket_nonblocking(fd);
-    QDEBUG("Success bind address:%s, port:%d", address, (int)port);
+    QERROR("Success bind address:%s, port:%d", address, (int)port);
+    SettingUtils &setting = SettingUtils::newInstance();
+    std::vector<String> ms;
+    setting.getMethod(ms);
+    QERROR("Password:%s\nCurrent user:%s\nCurrent pwd:%s\nLocal addr:%s port:%d\nRemote addr:%s port:%d\nMethod:%s",
+           setting.getPassword().c_str(),
+           setting.getCurUser().c_str(),
+           setting.getCurPwd().c_str(),
+           setting.getLocalServer().c_str(),
+           setting.getLocalPort(),
+           setting.getRemoteServer().c_str(),
+           setting.getRemotePort(),
+           utils::StringUtils::toString(ms).c_str()
+    );
     return fd;
 }
 
@@ -193,15 +207,18 @@ void serverInit(const String &file)
 {
     SettingUtils &setting = SettingUtils::newInstance();
     setting.init(file);
+
     std::vector<std::string> methods;
     setting.getMethod(methods);
     for(auto &item : methods)
     {
-	QERROR("Begin add method:%s", item.c_str());
+        QERROR("Begin add method:%s", item.c_str());
         if(item == "xor")
             CryptoHelper::newInstance().pushCrypto(CryptoWrap(new Xor()));
         else if(item == "rc4")
             CryptoHelper::newInstance().pushCrypto(CryptoWrap(new Rc4()));
+        else if(item == "chacha20")
+            CryptoHelper::newInstance().pushCrypto(CryptoWrap(new Chacha20()));
         else
         {
             QERROR("Not found method:%s, please add it here", item.c_str());

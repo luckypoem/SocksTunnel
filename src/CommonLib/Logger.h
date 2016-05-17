@@ -35,8 +35,8 @@ namespace loggable
 {\
     {\
         thread::mutex::ScopeLock<thread::mutex::Mutex> mlock(loggable::debugger::getMutex());\
-        fprintf(stderr, "[DEBUG][%s][%s:%s:%d] ", ts::Timestamp::now().toFormatedString(true).c_str(), __FILE__, __FUNCTION__, __LINE__);\
-        fprintf(stderr, fmt"\n", ##__VA_ARGS__);\
+        fprintf(stdout, "[DEBUG][%s][%s:%s:%d] ", ts::Timestamp::now().toFormatedString(true).c_str(), __FILE__, __FUNCTION__, __LINE__);\
+        fprintf(stdout, fmt"\n", ##__VA_ARGS__);\
     }\
 }
 #define QDEBUG_EX(expression, fmt, ...) \

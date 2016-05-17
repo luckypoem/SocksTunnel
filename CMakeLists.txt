@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(SocksTunnelLocal)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNDEBUG")
 
 set(LINKLIB ev event pthread crypto)
 
@@ -53,6 +53,8 @@ set(SOURCE_FILES
         src/Utils/RandomUtils.h
         src/Crypto/Xor.cpp
         src/Crypto/Xor.h
+        src/Crypto/Chacha20.cpp
+        src/Crypto/Chacha20.h
 )
 add_executable(SocksTunnelServer ${SOURCE_FILES} src/server.cpp)
 target_link_libraries(SocksTunnelServer ${LINKLIB})

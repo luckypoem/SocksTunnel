@@ -31,7 +31,7 @@ public:
     const String &getLocalServer() const;
     uint32_t getLocalPort() const;
     uint32_t getRemotePort() const;
-    void getMethod(std::vector<String> ms) const;
+    void getMethod(std::vector<String> &ms) const;
     const String &getCurUser() const;
     const String &getCurPwd() const;
 

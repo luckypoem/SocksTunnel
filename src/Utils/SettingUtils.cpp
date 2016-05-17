@@ -8,10 +8,6 @@ void SettingUtils::init(const String &file)
 {
     json_ = parser::JsonParser::parseFromFile(file);
     QDEBUG_IF(json_.isNil(), "Parse json file failed, check it please, file:%s", file.c_str());
-    if(!json_.isNil())
-    {
-        QERROR("Json init success, string:%s", json_.toString().c_str());
-    }
 }
 
 const String &SettingUtils::getPassword() const
@@ -65,7 +61,7 @@ uint32_t SettingUtils::getRemotePort() const
     __CHECK_OBJECT_AND_RETURN_INT__(json_, "remote_port", 9001);
 }
 
-void SettingUtils::getMethod(std::vector<String> ms) const
+void SettingUtils::getMethod(std::vector<String> &ms) const
 {
     do
     {
