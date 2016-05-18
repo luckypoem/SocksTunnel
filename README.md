@@ -56,11 +56,15 @@ sudo make intall
 
 ###Windows下编译
 ####使用msys
-***编译的时候需要将系统路径中的cygwin的路径还有cmake的路径移除掉, 如果有安装的话***
+**编译的时候需要将系统路径中的cygwin的路径还有cmake的路径移除掉, 如果有安装的话**
+
 需要安装msys
 地址:https://msys2.github.io/
+
 之后按照里面的说明对msys进行安装
+
 下载需要的软件包
+
 ```shell
 pacman -S mingw-w64-i686-toolchain tar make openssl libevent-devel cmake
 ```
@@ -68,7 +72,7 @@ pacman -S mingw-w64-i686-toolchain tar make openssl libevent-devel cmake
 这里我用pacman搜不到libev, 所以手动源码编译了。。
 按上面写的libev编译方式去编译就好了
 
-**上面的依赖包都**都装完后执行下面的命令进行编译
+**上面的依赖包** 都装完后执行下面的命令进行编译
 ```shell
 mkdir build
 cd build
@@ -107,6 +111,7 @@ msys-z.dll
 错误：‘gettimeofday’在此作用域中尚未声明
 ```
 **弄了个例子测试gettimeofday却可以编译成功, 草莓。。。**
+目测是我自己这边环境的原因, 不搞了, 大致应该也就是上面装依赖包, 下cmake, make, g++, 然后编译 这几个过程。。
 
 ###怎么使用?
 -------------------
