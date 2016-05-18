@@ -56,6 +56,7 @@ set(SOURCE_FILES
         src/Crypto/Chacha20.cpp
         src/Crypto/Chacha20.h
 )
+link_directories("/usr/local/lib")
 add_executable(SocksTunnelServer ${SOURCE_FILES} src/server.cpp)
 target_link_libraries(SocksTunnelServer ${LINKLIB})
 

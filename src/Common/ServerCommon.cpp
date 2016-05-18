@@ -73,24 +73,55 @@ int createRemoteServer(const char *addr, int addrLen, uint16_t port, char type)
     }
     else if(type == 0x03)  //Domain
     {
-        struct hostent server, *result = NULL;
+        //TODO:ADD CACHED HERE...
+        struct addrinfo *af = NULL, *ptr = NULL;
         int ret = 0;
-        char hostentBuf[2048];
         char *tmpHost = new char[addrLen + 1];
         memcpy(tmpHost, addr, (size_t)addrLen);
         tmpHost[addrLen] = 0;
-        if(gethostbyname2_r(tmpHost, AF_INET, &server, hostentBuf, sizeof(hostentBuf), &result, &ret))
+        bool isError = false;
+        do
         {
-            QERROR("Get host by name failed, address:%s", tmpHost);
+            if((ret = getaddrinfo(tmpHost, NULL, NULL, &af)))
+            {
+                QERROR("Get host by name failed, address:%s, err info:%s", tmpHost, gai_strerror(ret));
+                isError = true;
+                break;
+            }
+            ptr = af;
+            while(ptr)
+            {
+                if(ptr->ai_family == AF_INET)
+                    break;
+                ptr = ptr->ai_next;
+                
+            }
+            if(ptr->ai_family !=  AF_INET && ptr == af)
+            {
+                QERROR("Couldn't found ipv4 addr, address:%s", tmpHost);
+                isError = true;
+                break;
+            }
+            struct sockaddr_in *tmp = (struct sockaddr_in *)&storage;
+            tmp->sin_family = AF_INET;
+            memcpy(&(tmp->sin_addr.s_addr), &((struct sockaddr_in *)(ptr->ai_addr))->sin_addr, (size_t)ptr->ai_addrlen);
+            if(!inet_ntop(AF_INET, &((struct sockaddr_in *)(ptr->ai_addr))->sin_addr, tmpHost, addrLen + 1))
+            {
+                QERROR("Inet_ntop failed, address:%s", addr);
+            }
+            tmpHost[16] = '\0';
+            QERROR("Get host by name success, address:%s, ip:%s", addr, tmpHost);
+            tmp->sin_port = htons(port);
+        }
+        while(false);
+        if(af)
+            freeaddrinfo(af);
+        if(tmpHost)
             delete[] tmpHost;
+        if(isError)
+        {
             return -1;
         }
-        QDEBUG("Get host by name success...");
-        delete[] tmpHost;
-        struct sockaddr_in *tmp = (struct sockaddr_in *)&storage;
-        tmp->sin_family = AF_INET;
-        memcpy(&(tmp->sin_addr.s_addr), server.h_addr, (size_t)server.h_length);
-        tmp->sin_port = htons(port);
     }
     else if(type == 0x04)   //IPv6
     {

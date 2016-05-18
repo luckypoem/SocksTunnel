@@ -3,18 +3,110 @@
 
 ###编译
 -------------
+####基本编译方式
 ```shell
+mkdir build
 cd build
 cmake ..
 make
 ```
-编译需要libevent, libev, cmake, libssl, ubuntu可以直接
+####编译依赖
+编译需要libevent, libev, cmake, libssl
+**ubuntu**可以直接
 ```shell
 echo y | sudo apt-get install libevent-dev libev-dev cmake libssl-dev
 ```
-编译时提示cmake版本过低可以将CMakeLists.txt中的版本改低, **应该**没影响。。
-
+使用其他包管理软件的自己搜索下相关的包名哈。。
+编译时提示cmake版本过低可以将CMakeLists.txt中的版本改低,**应该**没影响。。
+```cmake
+例如。。。
+cmake_minimum_required(VERSION 3.0)
+->
+cmake_minimum_required(VERSION 2.8)
+```
+####依赖包的源码安装
+#####libev
+```shell
+wget http://dist.schmorp.de/libev/libev-4.22.tar.gz
+tar -zxf libev-4.22.tar.gz
+cd libev-4.22
+./configure
+make
+sudo make install
+```
+#####libevent
+```shell
+wget https://github.com/libevent/libevent/releases/download/release-2.0.22-stable/libevent-2.0.22-stable.tar.gz
+tar -zxf libevent-2.0.22-stable.tar.gz
+cd libevent-2.0.22-stable
+./configure
+make 
+sudo make install
+```
+####libssl
+```shell
+wget https://www.openssl.org/source/openssl-1.1.0-pre5.tar.gz
+tar -zxf openssl-1.1.0-pre5.tar.gz
+cd openssl-1.1.0-pre5
+./config
+make
+sudo make intall
+```
 需要修改打DEBUG日志的话, 修改CMakeLists.txt, 把里面的-DNDEBUG去掉然后重新编译就行了
+
+###Windows下编译
+####使用msys
+***编译的时候需要将系统路径中的cygwin的路径还有cmake的路径移除掉, 如果有安装的话***
+需要安装msys
+地址:https://msys2.github.io/
+之后按照里面的说明对msys进行安装
+下载需要的软件包
+```shell
+pacman -S mingw-w64-i686-toolchain tar make openssl libevent-devel cmake
+```
+####编译libev
+这里我用pacman搜不到libev, 所以手动源码编译了。。
+按上面写的libev编译方式去编译就好了
+
+**上面的依赖包都**都装完后执行下面的命令进行编译
+```shell
+mkdir build
+cd build
+cmake ..
+make
+```
+正常来说应该都可以编译完成
+如果出现下面的情况的话
+```
+/usr/lib/gcc/x86_64-pc-msys/5.3.0/../../../../x86_64-pc-msys/bin/ld: cannot find -lev
+```
+可以locate一下libev.a
+将它所在的路径加到CMakeLists.txt里面
+```cmake
+把里面的那句
+link_directories("/usr/local/lib")
+改成
+link_directories("你的libev.a的地址")
+```
+之后重新make一下应该就可以编译出来了, 如果还有问题, 可以贴下相关的日志。
+
+编译完成后, 运行时会提示缺少相关的动态链接库, 这里我贴下可能会用到的链接库, 将这些动态链接库复制到与编译出来的程序相同的目录就可以了
+```shell
+msys-2.0.dll
+msys-crypto-1.0.0.dll
+msys-event-2-1-4.dll
+msys-gcc_s-seh-1.dll
+msys-stdc++-6.dll
+msys-z.dll
+```
+**注:这些动态链接库可以在msys的安装目录下搜索到**
+
+####使用cygwin
+**妈蛋, 这边用cygwin编译的时候一直出现**
+```
+错误：‘gettimeofday’在此作用域中尚未声明
+```
+**弄了个例子测试gettimeofday却可以编译成功, 草莓。。。**
 
 ###怎么使用?
 -------------------

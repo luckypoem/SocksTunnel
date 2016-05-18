@@ -21,6 +21,7 @@
 #include "../Crypto/Rc4.h"
 #include "../Utils/SettingUtils.h"
 #include <vector>
+#include <netdb.h>
 
 #ifndef MAX_SERVER_BUF
 #define MAX_SERVER_BUF (4096)
