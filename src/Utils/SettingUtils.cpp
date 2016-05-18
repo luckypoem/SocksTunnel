@@ -100,3 +100,8 @@ const String &SettingUtils::getCurPwd() const
 {
     __CHECK_OBJECT_AND_RETURN_STRING__(json_, "current_pwd", NULL_STRING());
 }
+
+uint32_t SettingUtils::getAuthTimeout() const
+{
+    __CHECK_OBJECT_AND_RETURN_INT__(json_, "auth_timeout", 30);
+}

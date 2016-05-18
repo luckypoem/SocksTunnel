@@ -34,6 +34,7 @@ public:
     void getMethod(std::vector<String> &ms) const;
     const String &getCurUser() const;
     const String &getCurPwd() const;
+    uint32_t getAuthTimeout() const;
 
 
 private:
@@ -52,7 +53,7 @@ static const String &NULL_STRING();
     } \
     if(js.objectValue().find(item) == js.objectValue().end())\
     {\
-        QERROR("Item:%s not found...", item);\
+        QDEBUG("Item:%s not found...", item);\
         return value;\
     }\
 }

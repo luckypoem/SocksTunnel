@@ -117,7 +117,8 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             ev_io_start(remote->tunnel->getLoop(), remote->writeIO->asEvIO());
             ev_timer_start(remote->tunnel->getLoop(), &remote->writeIO->timer);
             server->stage = LocalServer::Connect;
-            //ev_io_stop(server->tunnel->getLoop(), server->readIO->asEvIO());
+            //auth finish, stop read timer;
+            ev_timer_stop(server->tunnel->getLoop(), &server->readIO->timer);
             QDEBUG_IF(server->readIO->startPos > server->readIO->total, "Why startPos > total? Fd:%d", server->readIO->asEvIO()->fd);
             if(server->readIO->startPos < server->readIO->total)
             {
@@ -407,6 +408,10 @@ void SocksTunnelServer::acceptCallback(struct ev_loop *loop, ev_io *args, int re
     ev_io_init(clientArgs->writeIO->asEvIO(), writeCallback, fd, EV_WRITE);
     QDEBUG("Begin to listen Fd:%d", fd);
     ev_io_start(loop, clientArgs->readIO->asEvIO());
+
+    //add read timer;
+    ev_timer_init(&clientArgs->readIO->timer, localTimeoutCallback, SettingUtils::newInstance().getAuthTimeout(), 0);
+    ev_timer_start(clientArgs->tunnel->getLoop(), &clientArgs->readIO->timer);
 }
 
 void SocksTunnelServer::remoteTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents)
@@ -415,4 +420,11 @@ void SocksTunnelServer::remoteTimeoutCallback(struct ev_loop *loop, ev_timer *ti
     QERROR("Time out....Fd:%d", server->writeIO->asEvIO()->fd);
     removeLocalServer(server->local);
     removeRemoteServer(server);
+}
+
+void SocksTunnelServer::localTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents)
+{
+    LocalServer *server = reinterpret_cast<LocalServer *>(reinterpret_cast<IO *>(((char *)timer) - sizeof(ev_io))->server);
+    QERROR("Time out....Fd:%d", server->readIO->asEvIO()->fd);
+    closeLocalAndRemoteServer(server, server->remote);
 }

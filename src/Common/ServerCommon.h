@@ -132,7 +132,7 @@ public:
     void resetBuffer()
     {
         //Unnecessary..
-        memset(buf, 0, total);
+        //memset(buf, 0, total);
         startPos = total = 0;
     }
     void resetReadIndex() { startPos = 0; }

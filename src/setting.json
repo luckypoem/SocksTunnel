@@ -11,6 +11,7 @@
     "sbtest":"ceshitest",
     "sentest":"sentest"
   },
+  "auth_timeout":30,
   "current_user":"sentest",
   "current_pwd":"sentest"
 }

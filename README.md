@@ -152,6 +152,9 @@ msys-z.dll
 **需要注意的是, 程序中对用户名的长度限制是6-16个字符, 密码字段的长度则是6-32**
 与用户配置有关的项还有**current_user**, **current_pwd**, 这2个字段只在本地端使用, 用于远程端对用户, 密码进行校验。
 
+####服务端认证超时
+用到的字段:auth_timeout, 客户端连上服务端后在指定时间内没完成认证就会被断开。
+
 ###默认配置
 ####本地端
 ```json
@@ -178,7 +181,8 @@ msys-z.dll
   "user":{
     "hellotest":"hellotest",
     "ohmyfuck":"ohyourfuck?"
-  }
+  },
+  "auth_timeout":30
 }
 ```
 

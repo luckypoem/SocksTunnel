@@ -24,7 +24,7 @@ int createLocalServer(const char *address, uint16_t port)
     SettingUtils &setting = SettingUtils::newInstance();
     std::vector<String> ms;
     setting.getMethod(ms);
-    QERROR("Password:%s\nCurrent user:%s\nCurrent pwd:%s\nLocal addr:%s port:%d\nRemote addr:%s port:%d\nMethod:%s",
+    QERROR("Password:%s\nCurrent user:%s\nCurrent pwd:%s\nLocal addr:%s port:%d\nRemote addr:%s port:%d\nMethod:%s\nAuth timeout:%d",
            setting.getPassword().c_str(),
            setting.getCurUser().c_str(),
            setting.getCurPwd().c_str(),
@@ -32,7 +32,8 @@ int createLocalServer(const char *address, uint16_t port)
            setting.getLocalPort(),
            setting.getRemoteServer().c_str(),
            setting.getRemotePort(),
-           utils::StringUtils::toString(ms).c_str()
+           utils::StringUtils::toString(ms).c_str(),
+           setting.getAuthTimeout()
     );
     return fd;
 }
@@ -202,6 +203,7 @@ RemoteServer::RemoteServer(SocksTunnel *tunnel) : Server(tunnel), local(NULL), s
 IO::IO(Server *server, SocksTunnel *tunnel) : server(server), tunnel(tunnel), startPos(0), total(0)
 {
     buf = new char[REAL_SERVER_BUF];
+    memset(&timer, 0, sizeof(timer));
 }
 
 
@@ -210,6 +212,8 @@ void removeLocalServer(LocalServer *server)
     if(server == NULL)
         return;
     QDEBUG("Close local Fd:%d", server->readIO->asEvIO()->fd);
+    ev_timer_stop(server->tunnel->getLoop(), &server->readIO->timer);
+    ev_timer_stop(server->tunnel->getLoop(), &server->writeIO->timer);
     close(server->readIO->asEvIO()->fd);
     ev_io_stop(server->tunnel->getLoop(), server->readIO->asEvIO());
     ev_io_stop(server->tunnel->getLoop(), server->writeIO->asEvIO());
@@ -220,7 +224,7 @@ void removeRemoteServer(RemoteServer *server)
 {
     if(server == NULL)
         return;
-    //ev_timer_stop(server->tunnel->getLoop(), &server->readIO->timer);
+    ev_timer_stop(server->tunnel->getLoop(), &server->readIO->timer);
     ev_timer_stop(server->tunnel->getLoop(), &server->writeIO->timer);
     QDEBUG("Close remote Fd:%d", server->readIO->asEvIO()->fd);
     close(server->readIO->asEvIO()->fd);

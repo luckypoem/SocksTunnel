@@ -46,6 +46,7 @@ private:
     static void remoteWriteCallback(struct ev_loop *loop, ev_io *args, int revents);
     static void acceptCallback(struct ev_loop *loop, ev_io *args, int revents);
     static void remoteTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents);
+    static void localTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents);
 };
 
 
