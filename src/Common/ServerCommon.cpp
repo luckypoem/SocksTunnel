@@ -105,12 +105,13 @@ int createRemoteServer(const char *addr, int addrLen, uint16_t port, char type)
             struct sockaddr_in *tmp = (struct sockaddr_in *)&storage;
             tmp->sin_family = AF_INET;
             memcpy(&(tmp->sin_addr.s_addr), &((struct sockaddr_in *)(ptr->ai_addr))->sin_addr, (size_t)ptr->ai_addrlen);
-            if(!inet_ntop(AF_INET, &((struct sockaddr_in *)(ptr->ai_addr))->sin_addr, tmpHost, addrLen + 1))
+            char ip[17];
+            if(!inet_ntop(AF_INET, &((struct sockaddr_in *)(ptr->ai_addr))->sin_addr, ip, sizeof(ip)))
             {
-                QERROR("Inet_ntop failed, address:%s", addr);
+                QERROR("Inet_ntop failed, address:%s, msg:%s", addr, strerror(errno));
             }
-            tmpHost[16] = '\0';
-            QERROR("Get host by name success, address:%s, ip:%s", addr, tmpHost);
+            ip[16] = '\0';
+            QERROR("Get host by name success, address:%s, ip:%s", addr, ip);
             tmp->sin_port = htons(port);
         }
         while(false);
