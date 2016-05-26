@@ -69,20 +69,13 @@ struct DataMsg
 public:
     DataMsg() : type(0x2)
     {
-#ifndef NDEBUG
         dataCheck = 0;
-#endif
     }
     int32_t total;
     String rndChar;   //5~10byte //uint8
     char type;     //0x2
-#ifndef NDEBUG
-    int32_t dataCheck; //test
-#endif
+    int32_t dataCheck; //crc check
     String data;      //0~2048 //uint16_t
-#ifndef NDEBUG
-    String pad;
-#endif
 
 public:
     String info() const;

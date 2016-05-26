@@ -3,7 +3,7 @@ project(SocksTunnelLocal)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNDEBUG")
 
-set(LINKLIB ev event pthread crypto)
+set(LINKLIB ev event pthread crypto z)
 
 set(SOURCE_FILES
         src/CommonLib/Atomic.h

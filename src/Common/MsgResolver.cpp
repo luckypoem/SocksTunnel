@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <zlib.h>
 #include "MsgResolver.h"
 #include "../Utils/BufferReader.h"
 #include "../CommonLib/Logger.h"
@@ -95,20 +96,11 @@ bool DataMsg::encode(String &buf)
     writer.writeByte(static_cast<char>(rndChar.size()));
     writer.writeString(rndChar);
     writer.writeByte(type);
-#ifndef NDEBUG
-    dataCheck = 0;
-    for(int i = 0; i < data.size(); ++i)
-    {
-        dataCheck += (unsigned char)data.at(i);
-    }
+    unsigned long  crc = crc32(0L, Z_NULL, 0);
+    dataCheck = (int32_t)crc32(crc, (const unsigned char*)data.c_str(), data.size());
     writer.writeInt(dataCheck);
-#endif
     writer.writeShort(static_cast<short>(data.size()));
     writer.writeString(data);
-#ifndef NDEBUG
-    pad = "abcd";
-    writer.writeString(pad);
-#endif
     return true;
 }
 
@@ -120,15 +112,10 @@ bool DataMsg::decode(const String &msg)
     __CHECK_READER__(reader.readByte(rndLen));
     __CHECK_READER__(reader.readString(rndChar, (unsigned char)rndLen));
     __CHECK_READER__(reader.readByte(type));
-#ifndef NDEBUG
     __CHECK_READER__(reader.readInt(dataCheck));
-#endif
     short dataLen = 0;
     __CHECK_READER__(reader.readShort(dataLen));
     __CHECK_READER__(reader.readString(data, dataLen));
-#ifndef NDEBUG
-    __CHECK_READER__(reader.readString(pad, 4));
-#endif
     return true;
 }
 
@@ -138,14 +125,9 @@ bool DataMsg::check() const
     __CHECK_STRING_SIZE__(rndChar, 5, 10);
     __CHECK_INT_SIZE__(type, 2, 2);
     __CHECK_STRING_SIZE__(data, 0, 8096);
-#ifndef NDEBUG
-    int32_t dCheck = 0;
-    for(int i = 0; i < data.size(); ++i)
-    {
-        dCheck += (unsigned char)data.at(i);
-    }
+    unsigned long  crc = crc32(0L, Z_NULL, 0);
+    int32_t dCheck = (int32_t)crc32(crc, (const unsigned char*)data.c_str(), data.size());
     __CHECK_INT_SIZE__(dataCheck, dCheck, dCheck);
-#endif
     return true;
 }
 
@@ -175,16 +157,10 @@ String DataMsg::info() const
     ret.append(std::to_string(rndChar.size()));
     ret.append(" Type:");
     ret.append(std::to_string((int)type));
-#ifndef NDEBUG
     ret.append(" Data check:");
     ret.append(std::to_string(dataCheck));
-#endif
     ret.append(" Data len:");
     ret.append(std::to_string(data.size()));
-#ifndef NDEBUG
-    ret.append(" Pad:");
-    ret.append(pad);
-#endif
     ret.append("]");
     return ret;
 }

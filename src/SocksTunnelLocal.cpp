@@ -240,7 +240,7 @@ void SocksTunnelLocal::readCallback(struct ev_loop *loop, ev_io *args, int reven
                     break;
                 }
                 QDEBUG("Msg info:%s", msg.info().c_str());
-                QDEBUG("Msg:%s", utils::StringUtils::toString(msg.data).c_str());
+                //QDEBUG("Msg:%s", utils::StringUtils::toString(msg.data).c_str());
                 //====ENCRYPT====
                 CryptoHelper::newInstance().encrypt(tmp, SettingUtils::newInstance().getPassword());
                 QDEBUG("Append %d byte to local write...Fd:%d", (int)tmp.size(), server->readIO->asEvIO()->fd);
