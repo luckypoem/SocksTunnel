@@ -2,15 +2,7 @@
 // Created by sen on 16-5-13.
 //
 
-#include <stdio.h>
-#include <netinet/in.h>
-#include <string.h>
-#include <zlib.h>
 #include "MsgResolver.h"
-#include "../Utils/BufferReader.h"
-#include "../CommonLib/Logger.h"
-#include "../Utils/BufferWriter.h"
-#include "../Utils/RandomUtils.h"
 
 /*
  *   auth msg: |total:4|randLen:1|randChar:-|type:1(0x1)|userLen:1|user:-|pwdLen:1|pwd:-|carrayLen:2|carray:-|

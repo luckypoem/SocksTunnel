@@ -2,6 +2,7 @@
 // Created by sen on 16-5-14.
 //
 
+#include <sys/param.h>
 #include "ServerCommon.h"
 #include "../Crypto/Chacha20.h"
 
@@ -241,9 +242,13 @@ void closeLocalAndRemoteServer(LocalServer *local, RemoteServer *remote)
 
 void serverInit(const String &file)
 {
+#ifndef FOREGROUND_START
+    daemonize();
+#endif
+
     SettingUtils &setting = SettingUtils::newInstance();
     setting.init(file);
-
+    Logger::newInstance().init(setting.getLogSettingFile());
     std::vector<std::string> methods;
     setting.getMethod(methods);
     for(auto &item : methods)
@@ -261,4 +266,25 @@ void serverInit(const String &file)
         }
     }
     
+}
+
+void daemonize()
+{
+    int pid;
+    pid = fork();
+    if(pid < 0)
+        exit(1);
+    else if(pid > 0)
+        exit(0);
+    setsid();
+    pid = fork();
+    if(pid > 0)
+        exit(0);
+    else if(pid < 0)
+        exit(1);
+    for(int i=0; i < NOFILE; i++)
+        close(i);
+    chdir("/");
+    umask(0);
+    return;
 }

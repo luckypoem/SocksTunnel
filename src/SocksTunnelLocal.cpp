@@ -20,6 +20,29 @@ SocksTunnelLocal::~SocksTunnelLocal()
 void SocksTunnelLocal::start()
 {
     int fd = createLocalServer(SettingUtils::newInstance().getLocalServer().c_str(), SettingUtils::newInstance().getLocalPort());
+    int cnt = SettingUtils::newInstance().getLocalProcessCount();
+    cnt = std::max(cnt, 1);
+    cnt = std::min(cnt, 100);
+#ifndef FOREGROUND_START
+    QERROR("Start in background, Process count:%d", cnt);
+    for(int i = 0; i < cnt; ++i)
+    {
+        int pid = fork();
+        if(pid == 0)
+        {
+            __doStart(fd);
+            exit(0);
+        }
+    }
+    exit(0);
+#else
+   __doStart(fd);
+#endif
+
+}
+
+void SocksTunnelLocal::__doStart(int fd)
+{
     LocalServer *server = new LocalServer(this);
     ev_io_init(server->readIO->asEvIO(), acceptCallback, fd, EV_READ);
     ev_io_start(getLoop(), server->readIO->asEvIO());
@@ -485,3 +508,4 @@ void SocksTunnelLocal::remoteTimeoutCallback(struct ev_loop *loop, ev_timer *tim
     removeLocalServer(server->local);
     removeRemoteServer(server);
 }
+

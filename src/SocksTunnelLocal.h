@@ -36,6 +36,10 @@ public:
 
 public:
     void start();
+
+protected:
+    void __doStart(int fd);
+
 private:
     static void readCallback(struct ev_loop *loop, ev_io *args, int revents);
     static void writeCallback(struct ev_loop *loop, ev_io *args, int revents);

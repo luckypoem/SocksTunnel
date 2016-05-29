@@ -13,5 +13,8 @@
   },
   "auth_timeout":30,
   "current_user":"sentest",
-  "current_pwd":"sentest"
+  "current_pwd":"sentest",
+  "remote_proc_count":4,
+  "local_proc_count":4,
+  "log_setting":"your log setting file"
 }

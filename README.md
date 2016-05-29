@@ -11,10 +11,20 @@ cmake ..
 make
 ```
 ####编译依赖
-编译需要libevent, libev, cmake, libssl
+编译需要libevent, libev, cmake, libssl, log4cpp
 **ubuntu**可以直接
 ```shell
 echo y | sudo apt-get install libevent-dev libev-dev cmake libssl-dev
+```
+**log4cpp**需要源码编译
+```shell
+git clone https://github.com/orocos-toolchain/log4cpp.git
+cd log4cpp
+mkdir build
+cd build 
+cmake ..
+make
+sudo make install
 ```
 使用其他包管理软件的自己搜索下相关的包名哈。。
 编译时提示cmake版本过低可以将CMakeLists.txt中的版本改低,**应该**没影响。。
@@ -55,6 +65,7 @@ sudo make intall
 需要修改打DEBUG日志的话, 修改CMakeLists.txt, 把里面的-DNDEBUG去掉然后重新编译就行了
 
 ###Windows下编译
+**日志中配置的路径或者setting.json中的路径, 请不要用到中文, 否则会导致程序异常退出!!!!**
 ####使用msys
 **编译的时候需要将系统路径中的cygwin的路径还有cmake的路径移除掉, 如果有安装的话**
 
@@ -71,7 +82,8 @@ pacman -S mingw-w64-i686-toolchain tar make openssl libevent-devel cmake
 ####编译libev
 这里我用pacman搜不到libev, 所以手动源码编译了。。
 按上面写的libev编译方式去编译就好了
-
+####编译log4cpp
+这个我这边编译的时候会提示**FileAppender.cpp**中**O_LARGEFILE**常量未定义什么的, 打开那个文件, 把**O_LARGEFILE**去掉就行了
 **上面的依赖包** 都装完后执行下面的命令进行编译
 ```shell
 mkdir build
@@ -155,6 +167,21 @@ msys-z.dll
 ####服务端认证超时
 用到的字段:auth_timeout, 客户端连上服务端后在指定时间内没完成认证就会被断开。
 
+####日志配置
+
+用到setting.json中的**log_setting**, 在其对应的值中填写日志配置文件的路径, 日志配置文件的模板可以使用log_template.conf, 复制一份, 然后把里面的
+**appender.A3.fileName=input your log file path here**替换成真正的路径, 例如
+```shell
+appender.A3.fileName=/etc/log.conf
+#这里的**/etc/log.conf**为你复制出来的日志配置文件模板的地址
+```
+其他配置请参考log4cpp的配置说明
+
+####多进程配置
+远程端用到**remote_proc_count**
+本地端用到**local_proc_count**
+进程数范围1-100
+
 ###默认配置
 ####本地端
 ```json
@@ -166,7 +193,8 @@ msys-z.dll
   "password":"this is a password",
   "method":["chacha20"],
   "current_user":"hellotest",
-  "current_pwd":"hellotest"
+  "current_pwd":"hellotest",
+  "local_proc_count":4
 }
 ```
 ####远程端
@@ -182,7 +210,8 @@ msys-z.dll
     "hellotest":"hellotest",
     "ohmyfuck":"ohyourfuck?"
   },
-  "auth_timeout":30
+  "auth_timeout":30,
+  "remote_proc_count":4
 }
 ```
 

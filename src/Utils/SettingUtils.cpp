@@ -105,3 +105,18 @@ uint32_t SettingUtils::getAuthTimeout() const
 {
     __CHECK_OBJECT_AND_RETURN_INT__(json_, "auth_timeout", 30);
 }
+
+uint32_t SettingUtils::getProcessCount() const
+{
+    __CHECK_OBJECT_AND_RETURN_INT__(json_, "remote_proc_count", 1);
+}
+
+const String &SettingUtils::getLogSettingFile() const
+{
+    __CHECK_OBJECT_AND_RETURN_STRING__(json_, "log_setting", NULL_STRING());
+}
+
+uint32_t SettingUtils::getLocalProcessCount() const
+{
+    __CHECK_OBJECT_AND_RETURN_INT__(json_, "local_proc_count", 1);
+}

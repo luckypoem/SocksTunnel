@@ -12,9 +12,18 @@
 #include <string>
 #include <limits.h>
 #include "../CommonLib/NoCopyable.h"
+#include "../Utils/BufferReader.h"
+#include "../CommonLib/Logger.h"
+#include "../Utils/BufferWriter.h"
+#include "../Utils/RandomUtils.h"
+#include <stdio.h>
+#include <netinet/in.h>
+#include <string.h>
+#include <zlib.h>
 
 typedef std::string String;
 
+using namespace loggable::debugger;
 
 
 #define __CHECK_INT_SIZE__(intV, left, right) \

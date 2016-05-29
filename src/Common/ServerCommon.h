@@ -149,5 +149,7 @@ void removeRemoteServer(RemoteServer *server);
 void closeLocalAndRemoteServer(LocalServer *local, RemoteServer *remote);
 
 void serverInit(const String &file);
+void daemonize();
+
 
 #endif //SOCKSTUNNELLOCAL_SERVERCOMMON_H

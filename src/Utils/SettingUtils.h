@@ -35,6 +35,9 @@ public:
     const String &getCurUser() const;
     const String &getCurPwd() const;
     uint32_t getAuthTimeout() const;
+    uint32_t getProcessCount() const;
+    uint32_t getLocalProcessCount() const;
+    const String &getLogSettingFile() const;
 
 
 private:
