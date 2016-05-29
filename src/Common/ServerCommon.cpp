@@ -5,6 +5,7 @@
 #include <sys/param.h>
 #include "ServerCommon.h"
 #include "../Crypto/Chacha20.h"
+#include "../Utils/RandomUtils.h"
 
 int createLocalServer(const char *address, uint16_t port)
 {
@@ -113,7 +114,7 @@ int createRemoteServer(const char *addr, int addrLen, uint16_t port, char type)
                 QERROR("Inet_ntop failed, address:%s, msg:%s", addr, strerror(errno));
             }
             ip[16] = '\0';
-            QERROR("Get host by name success, address:%s, ip:%s", addr, ip);
+            QDEBUG("Get host by name success, address:%s, ip:%s", addr, ip);
             tmp->sin_port = htons(port);
         }
         while(false);
@@ -245,7 +246,7 @@ void serverInit(const String &file)
 #ifndef FOREGROUND_START
     daemonize();
 #endif
-
+    RandomUtils::setSeed(time(NULL));
     SettingUtils &setting = SettingUtils::newInstance();
     setting.init(file);
     Logger::newInstance().init(setting.getLogSettingFile());

@@ -244,11 +244,7 @@ void SocksTunnelLocal::readCallback(struct ev_loop *loop, ev_io *args, int reven
             int sz = 0;
             do
             {
-#ifndef NDEBUG
-                int avaCount = 500; //RandomUtils::randInt(300, 800);
-#else
                 int avaCount = RandomUtils::randInt(300, 800);
-#endif
 
                 if(avaCount + sz > server->readIO->total)
                     avaCount = server->readIO->total - sz;

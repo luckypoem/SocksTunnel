@@ -52,6 +52,7 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
     LocalServer *server = static_cast<LocalServer *>(reinterpret_cast<IO *>(args)->server);
     QDEBUG_IF(server == NULL, "Can't cast to local server?");
     bool isError = false;
+    bool isHangup = false;
 
     ssize_t count = read(server->readIO->asEvIO()->fd, server->readIO->buf + server->readIO->total, MAX_SERVER_BUF - server->readIO->total);
 
@@ -83,13 +84,13 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             int total = ntohl(*reinterpret_cast<int *>(server->readIO->buf + server->readIO->startPos));
             if(total < 0)
             {
-                isError = true;
-                QERROR("I receive a negative number...mmm..it is not excepted... close it.. Fd:%d", server->readIO->asEvIO()->fd);
+                isHangup = true;
+                QERROR("I receive a negative number...mmm..it is not excepted... hang it.. Fd:%d", server->readIO->asEvIO()->fd);
                 break;
             }
             if(total > MAX_SERVER_BUF)
             {
-                isError = true;
+                isHangup = true;
                 QERROR("Msg too long...Fd:%d, total:%d", server->readIO->asEvIO()->fd, total);
                 break;
             }
@@ -106,7 +107,7 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             AuthMsg msg;
             if(!msg.decode(tmp))
             {
-                isError = true;
+                isHangup = true;
                 QERROR("Msg decode failed, Fd:%d", server->readIO->asEvIO()->fd);
                 break;
             }
@@ -114,7 +115,7 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
 
             if(!msg.check())
             {
-                isError = true;
+                isHangup = true;
                 QERROR("Msg check failed, Fd:%d", server->readIO->asEvIO()->fd);
                 break;
             }
@@ -230,7 +231,12 @@ void SocksTunnelServer::readCallback(struct ev_loop *loop, ev_io *args, int reve
             QERROR("Unknow stage:%d, Fd:%d", static_cast<int>(server->stage), server->readIO->asEvIO()->fd);
             break;
     }
-
+    //notice: only remote-local will use this flag...
+    if(isHangup)
+    {
+        hangUpInvalidClient(server);
+        return;
+    }
     if(isError)
     {
         closeLocalAndRemoteServer(server, server->remote);
@@ -300,11 +306,7 @@ void SocksTunnelServer::remoteReadCallback(struct ev_loop *loop, ev_io *args, in
         int sz = 0;
         do
         {
-#ifndef NDEBUG
-            int avaCount = 500; //RandomUtils::randInt(300, 800);
-#else
             int avaCount = RandomUtils::randInt(300, 800);
-#endif
             if(avaCount + sz > server->readIO->total)
                 avaCount = server->readIO->total - sz;
             QDEBUG("avaCount:%d, sz:%d, total:%d", avaCount, sz, server->readIO->total);
@@ -415,7 +417,7 @@ void SocksTunnelServer::acceptCallback(struct ev_loop *loop, ev_io *args, int re
     {
         if(errno == EAGAIN || errno == EWOULDBLOCK)
             return;
-        QERROR("Accept got -1, begin to exit!");
+        QERROR("Accept got -1, I don't know why...!");
         ev_io_stop(server->tunnel->getLoop(), args);
         close(args->fd);
         delete server;
@@ -423,7 +425,7 @@ void SocksTunnelServer::acceptCallback(struct ev_loop *loop, ev_io *args, int re
     }
     char tmp[17] = {0};
     inet_ntop(AF_INET, &client.sin_addr, tmp, sizeof(tmp));
-    QERROR("Client:%s, port:%d connect! Fd:%d", tmp, ntohs(client.sin_port), fd);
+    QDEBUG("Client:%s, port:%d connect! Fd:%d", tmp, ntohs(client.sin_port), fd);
     evutil_make_socket_nonblocking(fd);
     Server *clientArgs = new LocalServer(server->tunnel);
     ev_io_init(clientArgs->readIO->asEvIO(), readCallback, fd, EV_READ);
@@ -449,4 +451,15 @@ void SocksTunnelServer::localTimeoutCallback(struct ev_loop *loop, ev_timer *tim
     LocalServer *server = reinterpret_cast<LocalServer *>(reinterpret_cast<IO *>(((char *)timer) - sizeof(ev_io))->server);
     QERROR("Time out....Fd:%d", server->readIO->asEvIO()->fd);
     closeLocalAndRemoteServer(server, server->remote);
+}
+
+void SocksTunnelServer::hangUpInvalidClient(struct LocalServer *server)
+{
+    int sec = RandomUtils::randInt(20, 60);
+    ev_io_stop(server->tunnel->getLoop(), server->readIO->asEvIO());
+    //notice that it has been add to loop, must stop it first...
+    ev_timer_stop(server->tunnel->getLoop(), &server->readIO->timer);
+    ev_timer_init(&server->readIO->timer, localTimeoutCallback, sec, 0);
+    QDEBUG("Ok, I will wait %d seconds, and kick it!! Fd:%d", sec, server->readIO->asEvIO()->fd);
+    ev_timer_start(server->tunnel->getLoop(), &server->readIO->timer);
 }

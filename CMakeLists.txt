@@ -3,7 +3,7 @@ project(SocksTunnelLocal)
 
 #add -DNDEBUG to enable release version
 #add -DFOREGROUND_START to start in foreground, mmm...use for debug
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -DNDEBUG")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 set(LINKLIB ev event pthread crypto z log4cpp)
 

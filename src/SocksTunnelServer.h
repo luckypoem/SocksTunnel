@@ -51,7 +51,10 @@ private:
     static void acceptCallback(struct ev_loop *loop, ev_io *args, int revents);
     static void remoteTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents);
     static void localTimeoutCallback(struct ev_loop *loop, ev_timer *timer, int revents);
+    static void hangUpInvalidClient(struct LocalServer *server);
 };
+
+
 
 
 #endif //SOCKSTUNNELLOCAL_SOCKSTUNNELSERVER_H

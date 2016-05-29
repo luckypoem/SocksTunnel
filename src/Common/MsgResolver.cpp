@@ -13,11 +13,7 @@
 bool AuthMsg::encode(String &buf)
 {
     //create rnd char;
-#ifndef NDEBUG
-    int rndSz = 7;
-#else
     int rndSz = RandomUtils::randInt(5, 100);
-#endif
     rndChar = std::move(RandomUtils::randString(rndSz));
     type = 0x1;
     __CHECK_STRING_SIZE__(user, 6, 16);
@@ -75,11 +71,7 @@ bool AuthMsg::check() const
 bool DataMsg::encode(String &buf)
 {
     type = 0x2;
-#ifndef NDEBUG
-    int rndLen = 5;
-#else
     int rndLen = RandomUtils::randInt(5, 10);
-#endif
     rndChar = std::move(RandomUtils::randString(rndLen));
     __CHECK_STRING_SIZE__(data, 0, 4096);
 
