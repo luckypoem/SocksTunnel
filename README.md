@@ -218,3 +218,11 @@ appender.A3.fileName=/etc/log.conf
 ###为什么写这个东西？
 ----
 ####熟悉下异步=，=,  还有自己的翻墙需要。
+
+------
+
+https://github.com/luckypoem/sockstunnel（此版本有问题）
+
+这个版本没问题：https://drive.google.com/file/d/1UOtpuqGD55_XOixA56ATV-Wx72sgXuCm/view, 而且这个版本支持在mac上编译。
+
+详见http://briteming.blogspot.de/2016/06/sockstunnel.html
